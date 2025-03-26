@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import {
-  Eye,
-  EyeOff,
-  Loader2,
-  Mail,
-  MessageSquare,
-  ShieldUser,
-} from "lucide-react";
+import { Eye, EyeOff, Loader2, ShieldUser } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import AuthImagePattern from "../components/AuthImagePattern";
 import toast from "react-hot-toast";
@@ -15,14 +8,14 @@ import toast from "react-hot-toast";
 const AdLoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
+    userName: "",
     password: "",
   });
   const { adminlogin, isLoggingIn } = useAuthStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    //login(formData);
+    adminlogin(formData);
   };
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
@@ -64,9 +57,9 @@ const AdLoginPage = () => {
               <input
                 type="text"
                 placeholder="Admin Username..."
-                value={formData.fullName}
+                value={formData.userName}
                 onChange={(e) =>
-                  setFormData({ ...formData, fullName: e.target.value })
+                  setFormData({ ...formData, userName: e.target.value })
                 }
               />
             </label>

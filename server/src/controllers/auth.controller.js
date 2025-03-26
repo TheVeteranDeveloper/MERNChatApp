@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
+import Admin from "../models/admin.model.js";
 import bcrypt from "bcryptjs";
-import { generateToken } from "../lib/utils.js";
+import { generateToken, generateAdminToken } from "../lib/utils.js";
 import cloudinary from "../lib/cloudinary.js";
 
 // registration end-point (works and uploads to db)
@@ -85,6 +86,58 @@ export const login = async (req, res) => {
   }
 };
 
+// admin registration end-point
+export const adminregister = async (req, res) => {
+  const { userName, password } = req.body;
+  try {
+    if (!userName || !password) {
+      return res.status(400).json({ message: "All Fields Required" });
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const newAdmin = new Admin({
+      userName,
+      password: hashedPassword,
+    });
+    if (newAdmin) {
+      generateAdminToken(newAdmin._id, res);
+      await newAdmin.save();
+      res.status(200).json({
+        _id: newAdmin._id,
+        userName: newAdmin.userName,
+      });
+    } else {
+      res.status(400).json({ message: "Invalid Admin Data" });
+    }
+  } catch (error) {
+    console.log("Error in adminregister controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// admin login end-point
+export const adminlogin = async (req, res) => {
+  const { userName, password } = req.body;
+  try {
+    const admin = await Admin.findOne({ userName });
+    if (!admin) {
+      return res.status(400).json({ message: "Invalid Credentials" });
+    }
+    const isPasswordCorrect = await bcrypt.compare(password, admin.password);
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ message: "Invalid Credentials" });
+    }
+    generateAdminToken(admin._id, res);
+    res.status(200).json({
+      _id: admin._id,
+      userName: admin.userName,
+    });
+  } catch (error) {
+    console.log("Error in adminlogin controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 // logout end-point (logs user out and clears the jwt cookie)
 export const logout = (req, res) => {
   try {
@@ -123,6 +176,16 @@ export const checkAuth = (req, res) => {
     res.status(200).json(req.user);
   } catch (error) {
     console.log("Error in checkAuth controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// check admin auth
+export const adminAuth = (req, res) => {
+  try {
+    res.status(200).json(req.admin);
+  } catch (error) {
+    console.log("Error in adminAuth controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

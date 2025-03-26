@@ -4,6 +4,8 @@ import express from "express";
 import authRoutes from "./routes/auth.route.js";
 // message routes
 import messageRoutes from "./routes/message.route.js";
+// admin routes
+import adminRoutes from "./routes/admin.route.js";
 // import DB connection
 import { connectDB } from "./lib/db.js";
 // import cors
@@ -36,6 +38,7 @@ app.use(
 // routes
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/admin", adminRoutes);
 
 // serve static files with express middleware
 if (process.env.NODE_ENV === "production") {

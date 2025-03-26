@@ -59,7 +59,18 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  adminlogin: () => {},
+  adminlogin: async (data) => {
+    set({ isLoggingIn: true });
+    try {
+      const res = await axiosInstance.post("/admin/admin-login", data);
+      set({ authUser: res.data });
+      toast.success("Logged In Successfullly");
+    } catch (error) {
+      toast.error(error.response.data.message);
+    } finally {
+      set({ isLoggingIn: false });
+    }
+  },
 
   logout: async () => {
     try {
